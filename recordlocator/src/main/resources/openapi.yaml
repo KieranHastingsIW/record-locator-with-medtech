@@ -1,0 +1,167 @@
+openapi: 3.0.2
+info:
+  title: Record Locator
+  version: "1.0"
+servers:
+- url: https://localhost:8290/rls
+paths:
+  /:
+    get:
+      parameters:
+      - description: NHI Number
+        explode: true
+        in: query
+        name: patientid
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: Datatype key
+        explode: true
+        in: query
+        name: datatype
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RLS_SYSTEM_POST_API_Schema'
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Retrieve locations
+      x-accepts: application/json
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RLS_POST_API_Schema'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RLS_SYSTEM_POST_API_Schema'
+          description: Created
+      summary: Insert or update locations
+      x-content-type: application/json
+      x-accepts: application/json
+  /system:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemList'
+          description: OK
+        "400":
+          description: bad request
+      summary: Retriev all systems
+      x-accepts: application/json
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RLS_SYSTEM_POST_API_Schema'
+        required: true
+      responses:
+        "200":
+          description: OK
+      summary: Insert system
+      x-content-type: application/json
+      x-accepts: application/json
+  /datatype:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RLS_DataType_POST_API_Schema'
+          description: OK
+      summary: Retriev all datatypes
+      x-accepts: application/json
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RLS_DataType_POST_API_Schema'
+        required: true
+      responses:
+        "200":
+          description: OK
+      summary: Insert datatype
+      x-content-type: application/json
+      x-accepts: application/json
+components:
+  schemas:
+    RLS_DataType_POST_API_Schema:
+      example:
+        description: description
+        rank: 0
+      properties:
+        description:
+          minLength: 1
+          type: string
+        rank:
+          type: integer
+      required:
+      - description
+      - rank
+      type: object
+    RLS_POST_API_Schema:
+      properties:
+        systemid:
+          type: integer
+        datatype:
+          type: integer
+        patientid:
+          minLength: 1
+          type: string
+      required:
+      - datatype
+      - patientid
+      - systemid
+      type: object
+    RLS_SYSTEM_POST_API_Schema:
+      example:
+        loc_type: loc_type
+        location: location
+        sys_type: sys_type
+        third_party_id: third_party_id
+        source_sys: source_sys
+      properties:
+        source_sys:
+          minLength: 1
+          type: string
+        sys_type:
+          minLength: 1
+          type: string
+        loc_type:
+          minLength: 1
+          type: string
+        third_party_id:
+          minLength: 1
+          type: string
+        location:
+          minLength: 1
+          type: string
+      required:
+      - loc_type
+      - location
+      - source_sys
+      - sys_type
+      type: object
+    SystemList:
+      items:
+        $ref: '#/components/schemas/RLS_SYSTEM_POST_API_Schema'
+      type: array

@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  mtdb:
+        image: 'postgres:13.1-alpine'
+        container_name: mtdb
+        environment:
+            - POSTGRES_USER=dbusername       
+            - POSTGRES_PASSWORD=dbusername                             
+        volumes:
+          - "./database-objects/init_mtdb.sql:/docker-entrypoint-initdb.d/init_mtdb.sql"
+          - "./database-objects/mtdb:/var/lib/postgresql/data"
+
+  Med-server:
+        container_name: medtech
+        depends_on:
+            - mtdb
+        build:
+            context: medtech
+            dockerfile: Dockerfile
+        image: medtech
+        environment:
+          - SPRING_DATASOURCE_URL=jdbc:postgresql://mtdb:5432/systemdb     
+          - SPRING_DATASOURCE_USERNAME=dbusername
+          - SPRING_DATASOURCE_PASSWORD=dbusername
+          - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+        ports:
+          - "8080:8080"
+networks:
+  default:
+    name: rl-net

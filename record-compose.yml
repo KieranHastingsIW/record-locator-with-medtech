@@ -1,0 +1,34 @@
+version: '3.9'
+services:
+  rldb:
+        image: 'postgres:13.1-alpine'
+        container_name: rldb
+        environment:
+            - POSTGRES_USER=dbusername                                     ### replace the DB-USERNAME with your desired USERNAME
+            - POSTGRES_PASSWORD=dbusername                                ### replace the DB-PASSWORD with your desired PASSWORD
+        volumes:
+          - "./database-objects/init_rls.sql:/docker-entrypoint-initdb.d/init_rls.sql"
+          - "./database-objects/rldb:/var/lib/postgresql/data"
+
+  RL-server:
+        container_name: RecordLoactor
+        depends_on:
+            - rldb
+        build:
+            context: recordlocator
+            dockerfile: Dockerfile
+        image: recordlocator
+        environment:
+          - SPRING_DATASOURCE_URL=jdbc:postgresql://rldb:5432/rls     
+          - SPRING_DATASOURCE_USERNAME=dbusername
+          - SPRING_DATASOURCE_PASSWORD=dbusername
+          - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+        ports:
+          - "9090:9090"
+
+networks:
+  default:
+    name: rl-net
+
+  
+
